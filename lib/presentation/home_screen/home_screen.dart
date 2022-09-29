@@ -16,6 +16,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   var url = "https://jsonplaceholder.typicode.com/photos";
   GetPhotosResp getPhotosResp = GetPhotosResp();
+  var data;
 
   @override
   void initState() {
@@ -25,16 +26,32 @@ class _HomeScreenState extends State<HomeScreen> {
 
   getData() async {
     http.Response response = await http.get(Uri.tryParse(url)!);
-    GetPhotosResp.fromList(jsonDecode(response.body));
-    print(getPhotosResp.id);
+    // GetPhotosResp.fromList(jsonDecode(response.body));
+    setState(() {
+      data = jsonDecode(response.body);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: getPhotosResp != null
+      child: data != null
           ? Card(
-              child: Text(''),
+              child: ListView.builder(
+                /*gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 1
+                ),*/
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ListTile(
+                        title: Text(data[index]['title']),
+                        leading: Image.network(data[index]['url']),
+                        trailing: Text(data[index]['id'].toString()),
+                      ),
+                    );
+                  },
+                  itemCount: data.length),
             )
           : Center(
               child: CircularProgressIndicator(),
